@@ -1,0 +1,143 @@
+<div id="game-container" style="text-align: center; border: 2px solid #ddd; padding: 20px; border-radius: 10px; font-family: sans-serif; max-width: 550px; margin: auto;">
+  <h3>Angol szótár gyakorló</h3>
+
+  <div style="margin-bottom: 20px; background: #f9f9f9; padding: 10px; border-radius: 8px; font-size: 14px;">
+    <label for="voice-select"><b>Amerikai és Brit hangok:</b></label><br>
+    <select id="voice-select" style="width: 90%; padding: 5px; margin-top: 5px; border-radius: 4px;"></select>
+  </div>
+
+  <div id="word-list">Betöltés...</div>
+</div>
+
+<script>
+// 1. ADATOK ELŐKÉSZÍTÉSE
+let words = []; // Kezdetben üres
+
+// A lista generálása külön függvénybe kerül
+function renderList() {
+  const listDiv = document.getElementById('word-list');
+  listDiv.innerHTML = ''; // Töröljük a "Betöltés..." szöveget
+  
+  words.forEach((item, index) => {
+    const btnStyle = "width: 250px; cursor: pointer; padding: 8px; margin: 2px; vertical-align: middle; white-space: pre-wrap; line-height: 1.2; min-height: 40px;";
+    listDiv.innerHTML += `
+      <div style="margin-bottom: 15px; border-bottom: 1px dashed #eee; padding-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+        <button id="btn-${index}" onclick="speakHu('${item.hu}')" style="${btnStyle}">${item.hu}</button>
+        <input type="text" id="ans-${index}" 
+               placeholder="${item.hu}" 
+               onkeypress="if(event.keyCode == 13) check(${index})"
+               style="width: 120px; padding: 8px; vertical-align: middle; outline: none; border: 1px solid #ccc; border-radius: 4px;">
+        <button onclick="check(${index})" style="width: 60px; cursor: pointer; padding: 8px; border-radius: 4px;">OK</button>
+      </div>
+    `;
+  });
+}
+
+// JSON FÁJL BEOLVASÁSA
+async function loadData() {
+  try {
+    // Cseréld ki a 'szavak.json' nevet a saját fájlod nevére vagy URL-jére!
+    const response = await fetch('szavak.json');
+    if (!response.ok) throw new Error('Hiba a fájl beolvasásakor');
+    words = await response.json();
+    renderList(); // Csak ha megvannak az adatok, akkor rajzolunk
+  } catch (err) {
+    document.getElementById('word-list').innerHTML = "Hiba: " + err.message;
+  }
+}
+
+// 2. HANGOK KEZELÉSE
+const voiceSelect = document.getElementById('voice-select');
+
+function loadVoices() {
+  const voices = window.speechSynthesis.getVoices();
+  voiceSelect.innerHTML = '';
+  const filteredVoices = voices.filter(v => v.lang === 'en-GB' || v.lang === 'en-US');
+
+  if (filteredVoices.length === 0) {
+    const opt = document.createElement('option');
+    opt.textContent = "Nincs brit vagy amerikai hang az eszközön";
+    voiceSelect.appendChild(opt);
+    return;
+  }
+
+  const priorityList = [
+    "Google UK English Female", "Google UK English Male", 
+    "Google US English Female", "Google US English Male", "Samantha"
+  ];
+
+  const bestVoiceName = priorityList.find(pName => 
+    filteredVoices.some(v => v.name === pName)
+  );
+
+  filteredVoices.forEach(voice => {
+    const option = document.createElement('option');
+    option.value = voice.name;
+    let region = voice.lang === 'en-GB' ? 'Brit' : 'Amerikai';
+    option.textContent = `${voice.name} (${region})`;
+    if (voice.name === bestVoiceName) option.selected = true;
+    voiceSelect.appendChild(option);
+  });
+}
+
+window.speechSynthesis.onvoiceschanged = loadVoices;
+setTimeout(loadVoices, 500);
+
+// 3. LOGIKA
+function getSelectedVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find(v => v.name === voiceSelect.value);
+}
+
+function speak(text, lang, useQueue = false) {
+  if (!useQueue) window.speechSynthesis.cancel();
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = lang;
+  if (lang.startsWith('en')) {
+    const selectedVoice = getSelectedVoice();
+    if (selectedVoice) msg.voice = selectedVoice;
+  }
+  window.speechSynthesis.speak(msg);
+}
+
+const speakHu = (txt) => speak(txt, 'hu-HU');
+const speakEn = (txt) => speak(txt, 'en-GB');
+
+function check(index) {
+  const inputField = document.getElementById('ans-' + index);
+  const wordBtn = document.getElementById('btn-' + index);
+  const userAns = inputField.value.trim().toLowerCase();
+  const correctAns = words[index].en.toLowerCase();
+  const questionHu = words[index].hu;
+
+  if (userAns === correctAns) {
+    inputField.style.fontWeight = "bold";
+    if (wordBtn.innerText.includes("\n")) {
+      inputField.style.color = "#d35400";
+      inputField.style.borderColor = "#d35400";
+      wordBtn.style.color = "red";
+      wordBtn.innerText = questionHu;
+    } else {
+      inputField.style.color = "green";
+      inputField.style.borderColor = "green";
+    }
+    speakEn(correctAns);
+    const nextField = document.getElementById('ans-' + (index + 1));
+    if (nextField) nextField.focus();
+  } else {
+    inputField.style.color = "red";
+    inputField.style.borderColor = "red";
+    inputField.style.fontWeight = "bold";
+    wordBtn.innerText = questionHu + "\n" + correctAns;
+    wordBtn.style.backgroundColor = "#ffcccc";
+    window.speechSynthesis.cancel();
+    speak(correctAns, 'en-GB', true);
+    speak(questionHu, 'hu-HU', true);
+    speak(correctAns, 'en-GB', true);
+    inputField.select();
+  }
+}
+
+// Program indítása
+loadData();
+</script>
