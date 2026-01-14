@@ -9,7 +9,7 @@
   { "hu": "házimunka", "en": "household chore" },
   { "hu": "elavult", "en": "obsolete" },
   { "hu": "rabszolga", "en": "slave" },
-  { "hu": "független", "en": "idependent" },
+  { "hu": "független", "en": "independent" },
   { "hu": "kenyérkereső", "en": "breadwinner" },
   { "hu": "felelős valamiért", "en": "to be in charge of sg" },
   { "hu": "eszköz", "en": "device" },
@@ -32,3 +32,4 @@
   { "hu": "a mának él", "en": "to seize the day" }
 
 ]
+
