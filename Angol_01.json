@@ -4,7 +4,7 @@
   { "hu": "mozgalom", "en": "movement" },
   { "hu": "tetőzik", "en": "to culminate" },
   { "hu": "választ", "en": "to opt for" },
-  { "hu": "kijön valamiből", "en": "to make ends meet" },
+  { "hu": "kijön a pénzéből", "en": "to make ends meet" },
   { "hu": "női munkát végző", "en": "pink-collar worker" },
   { "hu": "házimunka", "en": "household chore" },
   { "hu": "elavult", "en": "obsolete" },
@@ -18,12 +18,13 @@
   { "hu": "elképzelhetetlen", "en": "unimaginable" },
   { "hu": "összetartó", "en": "closely-knit" },
   { "hu": "felmos", "en": "to mop" },
-  { "hu": "szemét", "en": "garbage" },
+  { "hu": "szemét (UK)", "en": "rubbish" },
+  { "hu": "szemét (US)", "en": "garbage" },
   { "hu": "ki van jelölve valamire", "en": "to be assigned to do sg" },
   { "hu": "reklamál", "en": "to complain" },
   { "hu": "fenntart", "en": "to maintain" },
   { "hu": "egyedüli", "en": "sole" },
-  { "hu": "bölcsőde", "en": "créche" },
+  { "hu": "bölcsőde", "en": "nursery" },
   { "hu": "ragaszkodik valamihez", "en": "to insist on" },
   { "hu": "koncentrál valamire", "en": "to focus on sg" },
   { "hu": "feláldoz", "en": "to sacrifice" },
@@ -31,5 +32,3 @@
   { "hu": "betegszabadságon van", "en": "to be on sick leave" },
   { "hu": "a mának él", "en": "to seize the day" }
 ]
-
-
