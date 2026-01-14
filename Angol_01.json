@@ -11,7 +11,7 @@
   { "hu": "rabszolga", "en": "slave" },
   { "hu": "független", "en": "idependent" },
   { "hu": "kenyérkereső", "en": "breadwinner" },
-  { "hu": "felelős valamiért", "en": "to be in charge sg" },
+  { "hu": "felelős valamiért", "en": "to be in charge of sg" },
   { "hu": "eszköz", "en": "device" },
   { "hu": "mosogatógép", "en": "dishwasher" },
   { "hu": "mikrohullámú sütő", "en": "microwave oven" },
@@ -30,4 +30,5 @@
   { "hu": "elér", "en": "to achieve" },
   { "hu": "betegszabadságon van", "en": "to be on sick leave" },
   { "hu": "a mának él", "en": "to seize the day" }
+
 ]
