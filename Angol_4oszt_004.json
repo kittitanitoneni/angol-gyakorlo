@@ -1,0 +1,17 @@
+[
+  { "hu": "hálószoba", "en": "bedroom" },
+  { "hu": "nappali", "en": "living room" },
+  { "hu": "fürdőszoba", "en": "bathroom" },
+  { "hu": "konyha", "en": "kitchen" },
+  { "hu": "kert, udvar", "en": "garden" },
+  { "hu": "doboz", "en": "box" },
+  { "hu": "pilóta", "en": "pilot" },
+  { "hu": "repülő", "en": "plane" },
+  { "hu": "orvos", "en": "doctor" },
+  { "hu": "színész", "en": "actor" },
+  { "hu": "színésznő", "en": "actress" },
+  { "hu": "tanuló, diák", "en": "student" },
+  { "hu": "tanár", "en": "teacher" },
+  { "hu": "különböző", "en": "different" },
+  { "hu": "munka, szakma", "en": "job" }
+]
