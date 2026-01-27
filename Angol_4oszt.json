@@ -93,7 +93,7 @@
   { "hu": "vicces", "en": "funny"},
   { "hu": "szemüveg", "en": "glasses"},
   { "hu": "tud, ismer", "en": "know"},
-  { "hu": "tud (képesség)", "en": "know, can"},
+  { "hu": "tud (képesség)", "en": "can"},
   { "hu": "nem tud (képesség)", "en": "can't, can not"},
   { "hu": "Készen állunk", "en": "We are ready"},
   { "hu": "tánc", "en": "dance"},
@@ -104,3 +104,4 @@
   { "hu": "kutya", "en": "dog"},
   { "hu": "elefánt", "en": "elephant"}
 ]
+
