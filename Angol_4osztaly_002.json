@@ -108,9 +108,10 @@
   { "hu": "focizik", "en": "play football"},
   { "hu": "kosárlabdázik", "en": "play basketball"},
   { "hu": "kézilabdázik", "en": "play handball"},
-  { "hu": "zongorázik", "en": "play piano"},
+  { "hu": "zongorázik", "en": "play the piano"},
   { "hu": "zongora", "en": "piano"},
   { "hu": "gitár", "en": "guitar"},
   { "hu": "hegedű", "en": "violin"}
 ]
+
 
