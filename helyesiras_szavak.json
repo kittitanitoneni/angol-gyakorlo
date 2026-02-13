@@ -1,5 +1,26 @@
 [
-  {"word": "gólya", "a": "j-ly", "b": "o-ó"},
-  {"word": "holló", "a": "l-ll", "b": "o-ó"},
-  {"word": "faggyú", "a": "gy-ggy", "b": "u-ú"}
+  {"word": "ülőhely", "a": "l-ll", "b": "ü-ű", "c": "ö-ő", "d": "j-ly"},
+  {"word": "szalag", "a": "l-ll"},
+  {"word": "állatkert", "a": "l-ll"},
+  {"word": "futballpálya", "a": "l-ll", "b": "j-ly"},
+  {"word": "villám", "a": "l-ll"},
+  {"word": "ellenség", "a": "l-ll"},
+  {"word": "villany", "a": "l-ll"},
+  {"word": "csillag", "a": "l-ll"},
+  {"word": "pillanat", "a": "l-ll"},
+  {"word": "szellő", "a": "l-ll", "b": "ö-ő"},
+  {"word": "illat", "a": "l-ll"},
+  {"word": "kesztyű", "a": "sz-ssz", "b": "ü-ű"},
+  {"word": "játszótér", "a": "sz-ssz", "b": "o-ó"},
+  {"word": "esztendő", "a": "sz-ssz", "b": "ö-ő"},
+  {"word": "fészek", "a": "sz-ssz"},
+  {"word": "ragasztó", "a": "sz-ssz", "b": "o-ó"},
+  {"word": "uszony", "a": "sz-ssz", "b": "o-ó", "c": "u-ú"},
+  {"word": "gyűszű", "a": "sz-ssz", "b": "ü-ű"},
+  {"word": "vessző", "a": "sz-ssz", "b": "ö-ő"},
+  {"word": "összeg", "a": "sz-ssz", "b": "ö-ő"},
+  {"word": "asszony", "a": "sz-ssz"},
+  {"word": "bosszúság", "a": "sz-ssz", "b": "u-ú"},
+  {"word": "lasszó", "a": "sz-ssz", "b": "o-ó"}
 ]
+
