@@ -87,7 +87,7 @@
   {"word": "tanú", "comment": "Az a személy, aki vallomást tesz a bíróság előtt arról, hogy mit látott.", "a": "u-ú"},
   {"word": "tovább", "comment": "messzebb", "a": "b-bb"},
   {"word": "töltötte", "a": "t-tt", "b": "ö-ő"},
-  {"word": "túlsó", "a": "u-ú", "b": "o-ó"},
+  {"word": "túlsó", "comment": "amivel átjutott a t_ls_ partra", "a": "u-ú", "b": "o-ó"},
   {"word": "tutajt", "comment": "Ácsolt egy tuta_t,", "a": "j-ly"},
   {"word": "tű", "a": "ü-ű"},
   {"word": "uszony", "comment": "halak testrésze", "a": "sz-ssz", "b": "o-ó", "c": "u-ú"},
@@ -102,3 +102,4 @@
   {"word": "virított", "a": "i-í", "b": "t-tt"},
   {"word": "zajt", "a": "j-ly"}
 ]
+
