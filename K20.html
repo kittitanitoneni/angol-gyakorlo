@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Képnézegető">
+    
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192/0056b3/FFFFFF?text=K%C3%A9p">
+    
+    <title>Képnézegető</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f9;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        body.fs-active { overflow: hidden; }
+        
+        .control-panel {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+            white-space: pre;
+        }
+        .settings-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 8px 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #0056b3;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: #004494; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        
+        #fullscreen-main-btn { background-color: #6f42c1; }
+        #fullscreen-main-btn:hover { background-color: #59339d; }
+
+        input[type="number"], input[type="text"] {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="number"] { width: 80px; }
+        
+        .image-viewer-container {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #fullscreen-wrapper {
+            width: 100%;
+            position: relative;
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        #fullscreen-wrapper.is-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            background-color: #111;
+            border: none;
+            border-radius: 0;
+            margin: 0;
+        }
+
+        .image-viewport {
+            width: 100%;
+            height: 60vh;
+            overflow: auto;
+            position: relative;
+            -webkit-overflow-scrolling: touch; 
+        }
+        #fullscreen-wrapper.is-fullscreen .image-viewport {
+            height: 100vh; 
+            width: 100vw;
+        }
+
+        #current-image {
+            display: none;
+            margin: 0 auto;
+            transform-origin: top left;
+            max-width: none !important;
+            max-height: none !important;
+        }
+
+        .fs-overlay {
+            display: none;
+            position: absolute;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        
+        #fullscreen-wrapper.is-fullscreen .fs-overlay { display: flex; }
+
+        #fs-top-controls {
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            gap: 10px;
+            align-items: center;
+            flex-direction: row;
+        }
+        
+        #fs-image-counter {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #fff;
+            margin-right: 5px;
+            white-space: nowrap;
+        }
+        
+        .fs-overlay button {
+            background-color: #444;
+            border: 1px solid #666;
+            width: 35px;
+            height: 35px;
+            padding: 0;
+            font-size: 1.2em;
+            line-height: 1;
+            border-radius: 4px;
+        }
+        .fs-overlay button:hover { background-color: #666; }
+        .fs-overlay button:disabled { background-color: #333; color: #777; }
+        
+        #fs-autoplay-btn { background-color: #28a745; border-color: #28a745; }
+        #fs-autoplay-btn.playing { background-color: #dc3545; border-color: #dc3545; }
+        
+        #fs-exit-btn { background-color: #666; margin-left: 10px; }
+
+        #fs-timer-input {
+            width: 45px;
+            padding: 6px;
+            text-align: center;
+        }
+
+        .zoom-controls {
+            display: none;
+            gap: 10px;
+            margin-top: 15px;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+        }
+        .zoom-controls button { background-color: #17a2b8; padding: 5px 12px; font-size: 1.2em; line-height: 1;}
+        .zoom-controls button:hover { background-color: #117a8b; }
+        
+        .zoom-text {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            min-width: 50px;
+            text-align: center;
+            display: inline-block;
+            cursor: pointer; 
+            padding: 5px;
+            user-select: none;
+        }
+        .zoom-text:hover { color: #0056b3; }
+        #fs-zoom-text { color: white; }
+        #fs-zoom-text:hover { color: #17a2b8; }
+
+        @media (max-width: 600px) {
+            #fs-top-controls { width: auto; flex-wrap: nowrap; justify-content: center; gap: 8px; padding: 8px 10px; }
+            .fs-overlay button { width: 32px; height: 32px; font-size: 1.1em; }
+            #fs-timer-input { width: 40px; padding: 4px; font-size: 0.9em; }
+            .zoom-text { font-size: 1em; padding: 4px; min-width: 45px; }
+            #fs-image-counter { font-size: 0.95em; margin-right: 2px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="control-panel">
+        <h3>Képek linkjei</h3>
+        <textarea id="image-urls" rows="5">https://cdn.alma.com/content/241255/0009-01.jpg
+https://cdn.alma.com/content/250257/0004-01.jpg
+https://cdn.alma.com/content/2407129/0032-01.jpg
+https://cdn.alma.com/content/241135/0003-01.jpg</textarea>
+        
+        <div class="settings-row" style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; border-left: 4px solid #17a2b8;">
+            <label for="replace-input" style="font-weight: bold; color: #495057;">Az 'alma' szó lecserélése erre:</label>
+            <input type="text" id="replace-input" value="alma" placeholder="pl. korte">
+        </div>
+        
+        <div class="settings-row">
+            <button id="load-btn">Képek betöltése</button>
+            <button id="fullscreen-main-btn" disabled>Teljes képernyő</button>
+            <label for="timer-input">Időzítés (mp):</label>
+            <input type="number" id="timer-input" value="3" min="1" max="60">
+            <button id="autoplay-btn" disabled>Automata lejátszás</button>
+        </div>
+    </div>
+
+    <div class="image-viewer-container">
+        
+        <div class="zoom-controls" id="zoom-container">
+            <button id="zoom-out-btn" title="Kicsinyítés" style="display: none;">-</button>
+            <span class="zoom-text" id="zoom-text" title="Kattints a gombok megjelenítéséhez!">100%</span>
+            <button id="zoom-in-btn" title="Nagyítás" style="display: none;">+</button>
+            <button id="zoom-fit-btn" style="font-size: 0.9em; padding: 8px; width: auto; display: none;">Kerethez</button>
+        </div>
+
+        <div id="fullscreen-wrapper">
+            <div id="fs-top-controls" class="fs-overlay">
+                <span id="fs-image-counter" title="Aktuális kép">0</span>
+                
+                <input type="number" id="fs-timer-input" value="3" min="1" max="60" title="Időzítés (mp)">
+                <button id="fs-autoplay-btn" title="Automata lejátszás"></button>
+                
+                <button id="fs-zoom-out-btn" style="display: none;" title="Kicsinyítés">-</button>
+                <span class="zoom-text" id="fs-zoom-text" title="Kattints a gombok megjelenítéséhez!">100%</span>
+                <button id="fs-zoom-in-btn" style="display: none;" title="Nagyítás">+</button>
+
+                <button id="fs-exit-btn" title="Kilépés">X</button>
+            </div>
+
+            <div class="image-viewport" id="viewport">
+                <img id="current-image" src="" alt="Megjelenített kép">
+            </div>
+        </div>
+
+        <p id="status-text">Még nincsenek képek betöltve.</p>
+        <p id="progress-text"></p>
+        
+        <div class="nav-buttons" id="nav-container">
+            <button id="prev-btn">Előző</button>
+            <button id="next-btn">Következő</button>
+        </div>
+    </div>
+
+    <script>
+        let images = [];
+        let currentIndex = 0;
+        let isAutoPlaying = false;
+        let playInterval;
+
+        let minScale = 1.0;
+        let currentScale = 1.0;
+        let savedRelX = 0.5;
+        let savedRelY = 0.5;
+        let keepZoomAndScroll = false;
+        let isSearching = false; 
+        let currentLoadSequence = 0; 
+        
+        const MAX_ZOOM = 1.0; 
+
+        const urlsInput = document.getElementById('image-urls');
+        const replaceInput = document.getElementById('replace-input');
+        const loadBtn = document.getElementById('load-btn');
+        const timerInput = document.getElementById('timer-input');
+        const autoplayBtn = document.getElementById('autoplay-btn');
+        const fullscreenMainBtn = document.getElementById('fullscreen-main-btn');
+        
+        const fsWrapper = document.getElementById('fullscreen-wrapper');
+        const viewport = document.getElementById('viewport');
+        const currentImage = document.getElementById('current-image');
+        const statusText = document.getElementById('status-text');
+        const progressText = document.getElementById('progress-text');
+        const navContainer = document.getElementById('nav-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        const zoomContainer = document.getElementById('zoom-container');
+        const zoomOutBtn = document.getElementById('zoom-out-btn');
+        const zoomInBtn = document.getElementById('zoom-in-btn');
+        const zoomFitBtn = document.getElementById('zoom-fit-btn');
+        const zoomText = document.getElementById('zoom-text');
+
+        const fsImageCounter = document.getElementById('fs-image-counter');
+        const fsTimerInput = document.getElementById('fs-timer-input');
+        const fsAutoplayBtn = document.getElementById('fs-autoplay-btn');
+        const fsExitBtn = document.getElementById('fs-exit-btn');
+        const fsZoomInBtn = document.getElementById('fs-zoom-in-btn');
+        const fsZoomOutBtn = document.getElementById('fs-zoom-out-btn');
+        const fsZoomText = document.getElementById('fs-zoom-text');
+
+        // --- GOMBOK ELREJTÉSE / MEGJELENÍTÉSE KATTINTÁSRA ---
+        
+        let isNormalZoomVisible = false;
+        zoomText.addEventListener('click', () => {
+            isNormalZoomVisible = !isNormalZoomVisible;
+            const displayVal = isNormalZoomVisible ? 'block' : 'none';
+            zoomInBtn.style.display = displayVal;
+            zoomOutBtn.style.display = displayVal;
+            zoomFitBtn.style.display = displayVal;
+        });
+
+        let isFsZoomVisible = false;
+        fsZoomText.addEventListener('click', () => {
+            isFsZoomVisible = !isFsZoomVisible;
+            const displayVal = isFsZoomVisible ? 'block' : 'none';
+            fsZoomInBtn.style.display = displayVal;
+            fsZoomOutBtn.style.display = displayVal;
+        });
+
+        // --- HIBRID TELJES KÉPERNYŐ LOGIKA ---
+
+        function enterFullscreen() {
+            fsWrapper.classList.add('is-fullscreen');
+            document.body.classList.add('fs-active');
+            try {
+                if (fsWrapper.requestFullscreen) fsWrapper.requestFullscreen().catch(()=>{});
+                else if (fsWrapper.webkitRequestFullscreen) fsWrapper.webkitRequestFullscreen();
+            } catch(e) {}
+        }
+
+        function closeFullscreen() {
+            fsWrapper.classList.remove('is-fullscreen');
+            document.body.classList.remove('fs-active');
+            try {
+                if (document.fullscreenElement || document.webkitFullscreenElement) {
+                    if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+                    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                }
+            } catch(e) {}
+        }
+
+        fullscreenMainBtn.addEventListener('click', enterFullscreen);
+        fsExitBtn.addEventListener('click', closeFullscreen);
+
+        document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) closeFullscreen(); });
+        document.addEventListener('webkitfullscreenchange', () => { if (!document.webkitFullscreenElement) closeFullscreen(); });
+
+        const resizeObserver = new ResizeObserver(() => {
+            if (currentImage.style.display === 'block') {
+                const center = getRelativeCenter(); 
+                const vWidth = viewport.clientWidth - 15;
+                const vHeight = viewport.clientHeight - 15; 
+                const nWidth = currentImage.naturalWidth;
+                const nHeight = currentImage.naturalHeight;
+                
+                if (nWidth > 0 && nHeight > 0) minScale = Math.min(vWidth / nWidth, vHeight / nHeight, MAX_ZOOM);
+                else minScale = MAX_ZOOM;
+                
+                if (currentScale < minScale) currentScale = minScale;
+                
+                applyZoomCSS();
+                requestAnimationFrame(() => setRelativeCenter(center.relX, center.relY));
+            }
+        });
+        resizeObserver.observe(viewport);
+
+        timerInput.addEventListener('input', (e) => fsTimerInput.value = e.target.value);
+        fsTimerInput.addEventListener('input', (e) => timerInput.value = e.target.value);
+        timerInput.addEventListener('change', () => { if (isAutoPlaying) resetIntervalIfPlaying(); });
+        fsTimerInput.addEventListener('change', () => { if (isAutoPlaying) resetIntervalIfPlaying(); });
+
+        // --- GEOMETRIA ÉS ZOOM LOGIKA ---
+
+        function getRelativeCenter() {
+            const imgRect = currentImage.getBoundingClientRect();
+            const viewRect = viewport.getBoundingClientRect();
+            let relX = ((viewRect.left + viewRect.width / 2) - imgRect.left) / imgRect.width;
+            let relY = ((viewRect.top + viewRect.height / 2) - imgRect.top) / imgRect.height;
+            if (viewRect.width >= imgRect.width) relX = 0.5;
+            if (viewRect.height >= imgRect.height) relY = 0.5;
+            return { relX: Math.max(0, Math.min(1, relX)), relY: Math.max(0, Math.min(1, relY)) };
+        }
+
+        function applyZoomCSS() {
+            if (currentScale < minScale) currentScale = minScale;
+            if (currentScale > MAX_ZOOM) currentScale = MAX_ZOOM;
+
+            const newWidth = currentImage.naturalWidth * currentScale;
+            currentImage.style.width = newWidth + 'px';
+            currentImage.style.height = 'auto'; 
+            
+            const vHeight = viewport.clientHeight;
+            const newHeight = currentImage.naturalHeight * currentScale;
+            
+            if (newHeight < vHeight) {
+                currentImage.style.marginTop = (vHeight - newHeight) + 'px';
+            } else {
+                currentImage.style.marginTop = '0px';
+            }
+            
+            const perc = Math.round(currentScale * 100) + '%';
+            zoomText.textContent = perc; fsZoomText.textContent = perc;
+            
+            const isMin = currentScale <= minScale + 0.01;
+            const isMax = currentScale >= MAX_ZOOM - 0.01;
+            zoomOutBtn.disabled = isMin; fsZoomOutBtn.disabled = isMin;
+            zoomInBtn.disabled = isMax;  fsZoomInBtn.disabled = isMax;
+        }
+
+        function setRelativeCenter(relX, relY) {
+            const currentW = currentImage.naturalWidth * currentScale;
+            const currentH = currentImage.naturalHeight * currentScale;
+            
+            const targetX = relX * currentW;
+            const targetY = relY * currentH;
+            
+            viewport.scrollLeft = targetX - viewport.clientWidth / 2;
+            viewport.scrollTop = targetY - viewport.clientHeight / 2;
+        }
+
+        function actionZoomIn() {
+            const center = getRelativeCenter(); currentScale += 0.1;
+            applyZoomCSS(); requestAnimationFrame(() => setRelativeCenter(center.relX, center.relY));
+        }
+        function actionZoomOut() {
+            const center = getRelativeCenter(); currentScale -= 0.1;
+            applyZoomCSS(); requestAnimationFrame(() => setRelativeCenter(center.relX, center.relY));
+        }
+
+        zoomInBtn.addEventListener('click', actionZoomIn); fsZoomInBtn.addEventListener('click', actionZoomIn);
+        zoomOutBtn.addEventListener('click', actionZoomOut); fsZoomOutBtn.addEventListener('click', actionZoomOut);
+        
+        zoomFitBtn.addEventListener('click', () => {
+            currentScale = minScale; applyZoomCSS();
+            requestAnimationFrame(() => setRelativeCenter(0.5, 0.5));
+        });
+
+        // --- KOPPINTÁSOS (TAP) VEZÉRLÉS ZÓNÁKKAL ---
+
+        let preventNextClick = false;
+
+        viewport.addEventListener('click', (e) => {
+            if (preventNextClick) return;
+            if (e.target.closest('.fs-overlay') || e.target.closest('.zoom-controls')) return;
+
+            const rect = viewport.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (y < rect.height * 0.25) jumpImages(-20);
+            else if (y > rect.height * 0.75) jumpImages(20);
+            else if (x < rect.width * 0.33) { showPrevImage(); resetIntervalIfPlaying(); }
+            else if (x > rect.width * 0.66) { showNextImage(); resetIntervalIfPlaying(); }
+        });
+
+        // --- KÉTUJJAS ÉRINTÉS (PINCH TO ZOOM) & SZABAD NAVIGÁCIÓ LOGIKA ---
+        
+        let initialPinchDistance = null;
+        let startPinchScale = MAX_ZOOM;
+        let pinchRelCenter = { relX: 0.5, relY: 0.5 };
+        let pinchScreenCenter = { x: 0, y: 0 };
+        let hasPinched = false;
+
+        viewport.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault(); 
+                hasPinched = true;   
+                
+                initialPinchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                startPinchScale = currentScale;
+                
+                const startPinchScreenCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const startPinchScreenCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+                const imgRect = currentImage.getBoundingClientRect();
+                pinchRelCenter.relX = (startPinchScreenCenterX - imgRect.left) / imgRect.width;
+                pinchRelCenter.relY = (startPinchScreenCenterY - imgRect.top) / imgRect.height;
+                
+                pinchRelCenter.relX = Math.max(0, Math.min(1, pinchRelCenter.relX));
+                pinchRelCenter.relY = Math.max(0, Math.min(1, pinchRelCenter.relY));
+            }
+        }, { passive: false });
+
+        viewport.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && initialPinchDistance !== null) {
+                e.preventDefault(); 
+                const currentDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+
+                const distanceRatio = currentDistance / initialPinchDistance;
+                currentScale = startPinchScale * distanceRatio;
+
+                applyZoomCSS();
+
+                const currentPinchScreenCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const currentPinchScreenCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+                const currentW = currentImage.naturalWidth * currentScale;
+                const currentH = currentImage.naturalHeight * currentScale;
+
+                const targetX = pinchRelCenter.relX * currentW;
+                const targetY = pinchRelCenter.relY * currentH;
+                
+                const viewportRect = viewport.getBoundingClientRect();
+                viewport.scrollLeft = targetX - (currentPinchScreenCenterX - viewportRect.left);
+                viewport.scrollTop = targetY - (currentPinchScreenCenterY - viewportRect.top);
+            }
+        }, { passive: false });
+
+        viewport.addEventListener('touchend', (e) => {
+            if (e.touches.length === 0) {
+                if (hasPinched) {
+                    preventNextClick = true;
+                    setTimeout(() => preventNextClick = false, 300);
+                    hasPinched = false;
+                }
+                initialPinchDistance = null;
+            }
+        });
+
+        // --- HÁTTÉRBEN TÖRTÉNŐ KERESÉS ---
+
+        function checkImageExists(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);   
+                img.onerror = () => resolve(false); 
+                img.src = url;
+            });
+        }
+
+        function handleNewImageFound() {
+            if (images.length > 0) {
+                fsImageCounter.textContent = `${currentIndex + 1}`;
+            }
+
+            if (images.length === 1) {
+                currentIndex = 0;
+                navContainer.style.display = 'flex';
+                autoplayBtn.disabled = false;
+                fullscreenMainBtn.disabled = false;
+                updateImage(); 
+            } else if (images.length > 1 && !isAutoPlaying) {
+                statusText.textContent = `Kép ${currentIndex + 1}` + (isSearching ? " (Keresés a háttérben...)" : "");
+            }
+        }
+
+        loadBtn.addEventListener('click', async () => {
+            const text = urlsInput.value;
+            const newWord = replaceInput.value.trim();
+            let rawUrls = text.split('\n').map(url => url.trim()).filter(url => url.length > 0);
+
+            if (rawUrls.length === 0) return;
+            rawUrls = rawUrls.map(url => url.replaceAll('alma', newWord));
+
+            loadBtn.disabled = true;
+            fullscreenMainBtn.disabled = true;
+            fsWrapper.style.display = 'none';
+            zoomContainer.style.display = 'none';
+            navContainer.style.display = 'none';
+            autoplayBtn.disabled = true;
+            if (isAutoPlaying) toggleAutoplay();
+            
+            images = [];
+            keepZoomAndScroll = false; 
+            isSearching = true;
+            fsImageCounter.textContent = "0";
+            statusText.textContent = "Képsorozatok keresése elkezdődött... Kérlek várj.";
+
+            for (const url of rawUrls) {
+                const regexMatch = url.match(/^(.*?)(\d+)(\.[a-zA-Z0-9]+(?:[\?#].*)?)$/);
+                if (regexMatch) {
+                    const base = regexMatch[1];
+                    const numLength = regexMatch[2].length;
+                    const ext = regexMatch[3];
+                    let consecutiveErrors = 0;
+
+                    for (let i = 0; i <= 99; i++) {
+                        let testUrl = base + String(i).padStart(numLength, '0') + ext;
+                        progressText.textContent = `Ellenőrzés: ${testUrl}`;
+                        
+                        if (await checkImageExists(testUrl)) {
+                            images.push(testUrl);
+                            consecutiveErrors = 0;
+                            handleNewImageFound();
+                        } else {
+                            consecutiveErrors++;
+                            if (consecutiveErrors >= 10) break; 
+                        }
+                    }
+                } else {
+                    progressText.textContent = `Ellenőrzés: ${url}`;
+                    if (await checkImageExists(url)) {
+                        images.push(url);
+                        handleNewImageFound();
+                    }
+                }
+            }
+
+            isSearching = false;
+            loadBtn.disabled = false;
+            progressText.textContent = "";
+            if (images.length > 0) {
+                statusText.textContent = `Kép ${currentIndex + 1} (Keresés befejezve)`;
+            } else {
+                statusText.textContent = "Egyetlen érvényes képet sem találtam!";
+            }
+        });
+
+        // --- LAPOZÁS, UGRÁS ÉS VILLANÁSMENTES MEGJELENÍTÉS (PRELOAD) ---
+
+        function updateImage() {
+            if (images.length === 0) return;
+            
+            currentLoadSequence++;
+            const mySequence = currentLoadSequence;
+            const targetUrl = images[currentIndex];
+            
+            fsImageCounter.textContent = `⏳ ${currentIndex + 1}`;
+            statusText.textContent = `Kép betöltése... ${currentIndex + 1}` + (isSearching ? " (Keresés a háttérben...)" : "");
+            
+            const preloader = new Image();
+            preloader.onload = () => {
+                if (mySequence !== currentLoadSequence) return;
+
+                currentImage.src = targetUrl;
+                
+                fsWrapper.style.display = 'block'; 
+                currentImage.style.display = 'block'; 
+                zoomContainer.style.display = 'flex';
+                
+                const vWidth = viewport.clientWidth - 15; 
+                const vHeight = viewport.clientHeight - 15; 
+                const nWidth = preloader.naturalWidth;
+                const nHeight = preloader.naturalHeight;
+                
+                if (nWidth > 0 && nHeight > 0) minScale = Math.min(vWidth / nWidth, vHeight / nHeight, MAX_ZOOM);
+                else minScale = MAX_ZOOM;
+                
+                if (keepZoomAndScroll) {
+                    currentScale = Math.max(minScale, Math.min(MAX_ZOOM, currentScale));
+                    applyZoomCSS();
+                    requestAnimationFrame(() => setRelativeCenter(savedRelX, savedRelY));
+                    keepZoomAndScroll = false; 
+                } else {
+                    currentScale = minScale; 
+                    applyZoomCSS();
+                    requestAnimationFrame(() => setRelativeCenter(0.5, 0.5));
+                }
+                
+                statusText.textContent = `Kép ${currentIndex + 1}` + (isSearching ? " (Keresés a háttérben...)" : "");
+                fsImageCounter.textContent = `${currentIndex + 1}`; 
+            };
+            
+            preloader.src = targetUrl;
+        }
+
+        function showNextImage() {
+            if (images.length === 0) return; 
+            const center = getRelativeCenter();
+            savedRelX = center.relX; savedRelY = center.relY; keepZoomAndScroll = true;
+            currentIndex = (currentIndex + 1) % images.length;
+            updateImage();
+        }
+
+        function showPrevImage() {
+            if (images.length === 0) return;
+            const center = getRelativeCenter();
+            savedRelX = center.relX; savedRelY = center.relY; keepZoomAndScroll = true;
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            updateImage();
+        }
+
+        function jumpImages(offset) {
+            if (images.length === 0) return;
+            const center = getRelativeCenter();
+            savedRelX = center.relX; savedRelY = center.relY; keepZoomAndScroll = true;
+            
+            currentIndex += offset;
+            
+            if (currentIndex >= images.length) {
+                currentIndex = images.length - 1; 
+            } else if (currentIndex < 0) {
+                currentIndex = 0; 
+            }
+            
+            updateImage();
+            resetIntervalIfPlaying();
+        }
+
+        nextBtn.addEventListener('click', () => { showNextImage(); resetIntervalIfPlaying(); });
+        prevBtn.addEventListener('click', () => { showPrevImage(); resetIntervalIfPlaying(); });
+
+        function toggleAutoplay() {
+            if (isAutoPlaying) {
+                clearInterval(playInterval);
+                autoplayBtn.textContent = "Automata lejátszás";
+                autoplayBtn.style.backgroundColor = "#0056b3";
+                fsAutoplayBtn.classList.remove('playing');
+            } else {
+                startInterval();
+                autoplayBtn.textContent = "Lejátszás leállítása";
+                autoplayBtn.style.backgroundColor = "#dc3545";
+                fsAutoplayBtn.classList.add('playing');
+            }
+            isAutoPlaying = !isAutoPlaying;
+        }
+
+        autoplayBtn.addEventListener('click', toggleAutoplay);
+        fsAutoplayBtn.addEventListener('click', toggleAutoplay);
+
+        function startInterval() {
+            const seconds = parseFloat(timerInput.value) || 3;
+            playInterval = setInterval(showNextImage, seconds * 1000);
+        }
+
+        function resetIntervalIfPlaying() {
+            if (isAutoPlaying) { clearInterval(playInterval); startInterval(); }
+        }
+    </script>
+</body>
+</html>
