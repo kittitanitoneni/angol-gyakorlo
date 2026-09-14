@@ -1,0 +1,16 @@
+[
+  { "title": "Judit néni csoportja" },
+  { "hu": "Mi a neved?", "en": "What's your name?"},
+  { "hu": "Én vagyok", "en": "I am"},
+  { "hu": "Hogy vagy?", "en": "How are you?"},
+  { "hu": "Jól, köszönöm", "en": "Fine, thank you"},
+  { "hu": "dal", "en": "song"},
+  { "hu": "hallgasd", "en": "listen"},
+  { "hu": "ismételni", "en": "repeat"},
+  { "hu": "pont", "en": "point"},
+  { "hu": "olvasni", "en": "read"},
+  { "hu": "írni", "en": "write"},
+  { "hu": "énekelni", "en": "sing"},
+  { "hu": "Hány éves vagy?", "en": "How old are you?"},
+  { "hu": "rajzolni", "en": "draw"}
+]
