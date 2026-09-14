@@ -1,0 +1,12 @@
+[
+  { "hu": "piros", "en": "red"},
+  { "hu": "kék", "en": "blue"},
+  { "hu": "sárga", "en": "yellow"},
+  { "hu": "zöld", "en": "green"},
+  { "hu": "barna", "en": "brown"},
+  { "hu": "fehér", "en": "white"},
+  { "hu": "fekete", "en": "black"},
+  { "hu": "rózsaszín", "en": "pink"},
+  { "hu": "narancssárga", "en": "orange"},
+  { "hu": "lila", "en": "purple"}
+]
