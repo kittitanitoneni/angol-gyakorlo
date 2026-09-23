@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WORDS">
+
+  <title>Angol szavak LEÍRÁSA</title>
+</head>
+<body>
+
+<div id="game-container" style="text-align: center; border: 2px solid #ddd; padding: 20px; border-radius: 10px; font-family: sans-serif; max-width: 550px; margin: auto; background: white;">
+  
+  <!-- Fejléc és gombok -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 5px;">
+    <h3 style="margin: 0; font-size: 16px;">Angol szótár gyakorló</h3>
+    <div style="display: flex; gap: 3px;">
+      <button id="retry-btn" onclick="retryFailed()" style="display: none; cursor: pointer; padding: 5px 10px; background: #fff3e0; border: 1px solid #ff9800; border-radius: 5px; font-size: 12px;">🔁 Csak a hibásak</button>
+      <button onclick="shuffleWords()" style="cursor: pointer; padding: 5px 10px; background: #e3f2fd; border: 1px solid #2196f3; border-radius: 5px; font-size: 12px;">🔀 Keverés</button>
+      <button onclick="toggleEditor()" style="cursor: pointer; padding: 5px 10px; background: #eee; border: 1px solid #ccc; border-radius: 5px; font-size: 12px;">⚙️</button>
+    </div>
+  </div>
+
+  <!-- Szószerkesztő -->
+  <div id="editor-container" style="display: none; margin-bottom: 20px; text-align: left; background: #f0f0f0; padding: 15px; border-radius: 8px;">
+    <label><b>Szószerkesztő (Vastag: kérdés, Normál: válasz):</b></label>
+    <div id="raw-input" contenteditable="true" style="width: 100%; min-height: 120px; max-height: 250px; overflow-y: auto; margin-top: 5px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: monospace; font-size: 14px; background: white; white-space: pre-wrap;"></div>
+    
+    <button onclick="updateListFromEditor()" style="width: 100%; margin-top: 10px; padding: 10px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px; font-weight: bold;">
+      Lista frissítése és Mentés
+    </button>
+  </div>
+  
+  <!-- Tananyag választó -->
+  <div style="margin-bottom: 20px; background: #e3f2fd; padding: 10px; border-radius: 8px; font-size: 14px; border: 1px solid #90caf9;">
+    <label for="lesson-select"><b>Válaszd ki a tananyagot:</b></label><br>
+    <select id="lesson-select" onchange="changeLesson()" style="width: 90%; padding: 5px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold;"></select>
+  </div>
+
+  <!-- Hang választó -->
+  <div style="margin-bottom: 20px; background: #f9f9f9; padding: 10px; border-radius: 8px; font-size: 14px;">
+    <label for="voice-select"><b>Angol hang:</b></label><br>
+    <select id="voice-select" style="width: 90%; padding: 5px; margin-top: 5px; border-radius: 4px;"></select>
+  </div>
+  
+  <!-- Szeletelő (Chunking) -->
+  <div id="slice-container" style="margin-bottom: 15px; padding: 10px; background: #f9f9f9; border-radius: 8px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #eee; flex-wrap: wrap;">
+    <span>Tanulás:</span>
+    <input type="number" id="slice-start" value="1" min="1" 
+           onkeypress="if(event.key === 'Enter') applySlice()"
+           style="width: 50px; padding: 3px; border-radius: 4px; border: 1px solid #ccc;">
+    <span>-tól</span>
+    <input type="number" id="slice-count" value="20" min="1" 
+           onkeypress="if(event.key === 'Enter') applySlice()"
+           style="width: 50px; padding: 3px; border-radius: 4px; border: 1px solid #ccc;">
+    <span>db szó.</span>
+    <span id="total-count-display" style="color: #666; font-style: italic;">(Összesen: 0)</span>
+    <button onclick="applySlice()" style="cursor: pointer; padding: 4px 10px; background: #607d8b; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold;">Alkalmaz</button>
+  </div>
+
+  <!-- Szólista konténer -->
+  <div id="word-list">Betöltés...</div>
+</div>
+
+<script>
+const listDiv = document.getElementById('word-list');
+const editor = document.getElementById('raw-input');
+const editorContainer = document.getElementById('editor-container');
+
+let failedIndices = new Set(); 
+let allWords = []; 
+let words = [];    
+
+// JSON források (Ide bővítheted a listát új URL-ekkel)
+const jsonSources = [
+  'https://raw.githubusercontent.com/kittitanitoneni/angol-gyakorlo/refs/heads/main/Angol_Fecskefiokak_E_4osztaly_001.json',
+  'https://raw.githubusercontent.com/kittitanitoneni/angol-gyakorlo/refs/heads/main/Angol_Fecskefiokak_J_4osztaly_001.json'
+];
+
+let lessonData = []; 
+
+// 1. TANANYAGOK BETÖLTÉSE (Inicializálás)
+async function initializeLessons() {
+  const selectEl = document.getElementById('lesson-select');
+  selectEl.innerHTML = '<option>Adatok betöltése folyamatban...</option>';
+  
+  lessonData = [];
+  
+  for (let url of jsonSources) {
+    try {
+      let response = await fetch(url);
+      if (response.ok) {
+        let data = await response.json();
+        
+        let titleItem = data.find(item => item.title);
+        let lessonTitle = titleItem ? titleItem.title : "Névtelen tananyag";
+        
+        // Kiszűrjük a "title" sort, csak a kérdés-válasz párok maradnak
+        let actualWords = data.filter(item => !item.title && item.hu && item.en);
+        
+        lessonData.push({ title: lessonTitle, words: actualWords });
+      }
+    } catch (e) {
+      console.error("Hiba a fájl betöltésekor:", url, e);
+    }
+  }
+  
+  selectEl.innerHTML = '';
+  lessonData.forEach((lesson, index) => {
+    let option = document.createElement('option');
+    option.value = index;
+    option.textContent = lesson.title;
+    selectEl.appendChild(option);
+  });
+  
+  if (lessonData.length > 0) {
+    changeLesson();
+  } else {
+    listDiv.innerHTML = "Nem sikerült egyetlen tananyagot sem betölteni.";
+  }
+}
+
+// 2. TANANYAG VÁLTÁSA
+function changeLesson() {
+  const selectedIndex = document.getElementById('lesson-select').value;
+  allWords = lessonData[selectedIndex].words; 
+  
+  const totalDisplay = document.getElementById('total-count-display');
+  if (totalDisplay) {
+    totalDisplay.innerText = `(Összesen: ${allWords.length})`;
+  }
+
+  const sliceCountInput = document.getElementById('slice-count');
+  if (sliceCountInput) {
+    sliceCountInput.value = allWords.length;
+  }
+  
+  const sliceStartInput = document.getElementById('slice-start');
+  if (sliceStartInput) {
+    sliceStartInput.value = 1; 
+  }
+  
+  applySlice(); 
+}
+
+// 3. SZELETELÉS
+function applySlice() {
+  const start = parseInt(document.getElementById('slice-start').value) - 1; 
+  const count = parseInt(document.getElementById('slice-count').value);
+  
+  words = allWords.slice(start, start + count);
+  
+  failedIndices.clear(); 
+  document.getElementById('retry-btn').style.display = "none";
+  
+  renderList();
+  fillEditorFromWords();
+  
+  window.speechSynthesis.cancel();
+  speak(`Showing words from ${start + 1} to ${Math.min(start + count, allWords.length)}`, 'en-GB');
+  setTimeout(() => {
+    const firstInput = document.getElementById('ans-0');
+    if (firstInput) {
+      firstInput.focus();
+      firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 100);
+}
+
+// 4. ELLENŐRZÉS (Tisztítás és Auto-javítás)
+function check(index) {
+  const inputField = document.getElementById('ans-' + index);
+  const wordBtn = document.getElementById('btn-' + index);
+  
+  const originalCorrectAns = words[index].en;
+  const questionHu = words[index].hu;
+
+// 2. Tisztító (normalizáló) logika
+  const cleanText = (text) => {
+    return text.toLowerCase()
+      // A ^ jel azt jelenti, hogy "KIVÉVE". 
+      // Tehát MINDENT töröl, ami NEM az angol vagy magyar ábécé betűje, illetve szám.
+      .replace(/[^a-z0-9áéíóöőúüű]/g, "");
+  };
+
+  const userClean = cleanText(inputField.value);
+  const correctClean = cleanText(originalCorrectAns);
+
+  if (userClean === correctClean) {
+    // Helyes válasz esetén beírjuk a tökéletes formátumot
+    inputField.value = originalCorrectAns; 
+    inputField.style.fontWeight = "bold";
+    
+    if (wordBtn.innerText.includes("\n")) {
+      inputField.style.color = "#d35400";
+      inputField.style.borderColor = "#d35400";
+      wordBtn.style.color = "red";
+      wordBtn.innerText = questionHu;
+    } else {
+      inputField.style.color = "green";
+      inputField.style.borderColor = "green";
+    }
+    speakEn(originalCorrectAns); 
+    const nextField = document.getElementById('ans-' + (index + 1));
+    if (nextField) nextField.focus();
+  } else {
+    // Hibás válasz
+    failedIndices.add(index);
+    document.getElementById('retry-btn').style.display = "inline-block";
+    
+    inputField.style.color = "red";
+    inputField.style.borderColor = "red";
+    inputField.style.fontWeight = "bold";
+    
+    wordBtn.innerText = questionHu + "\n" + originalCorrectAns;
+    
+    wordBtn.style.backgroundColor = "#ffcccc";
+    window.speechSynthesis.cancel();
+    speak(originalCorrectAns, 'en-GB', true);
+    speak(questionHu, 'hu-HU', true);
+    speak(originalCorrectAns, 'en-GB', true);
+    inputField.select();
+  }
+}
+
+// 5. SZERKESZTŐ FUNKCIÓK
+function toggleEditor() {
+  if (editorContainer.style.display === "none") {
+    editorContainer.style.display = "block";
+  } else {
+    editorContainer.style.display = "none";
+  }
+}
+
+function fillEditorFromWords() {
+  let htmlContent = "";
+  words.forEach(item => {
+    htmlContent += `<b>${item.hu}</b>\n${item.en}\n`;
+  });
+  editor.innerHTML = htmlContent;
+}
+
+function updateListFromEditor() {
+  const text = editor.innerText;
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l !== "");
+  const newWords = [];
+  for (let i = 0; i < lines.length; i += 2) {
+    if (lines[i] && lines[i+1]) {
+      newWords.push({ hu: lines[i], en: lines[i+1] });
+    }
+  }
+  if (newWords.length > 0) {
+    words = newWords;
+    fillEditorFromWords();
+    renderList();
+    toggleEditor();
+  }
+}
+
+// 6. FELÜLET GENERÁLÁSA
+function renderList() {
+  listDiv.innerHTML = '';
+  words.forEach((item, index) => {
+    const btnStyle = "width: 250px; cursor: pointer; padding: 8px; margin: 2px; vertical-align: middle; white-space: pre-wrap; line-height: 1.2; min-height: 40px;";
+    
+    listDiv.innerHTML += `
+      <div style="margin-bottom: 15px; border-bottom: 1px dashed #eee; padding-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+        <button id="btn-${index}" onclick="speakHu('${item.hu}')" style="${btnStyle}">${item.hu}</button>
+        
+        <textarea id="ans-${index}" 
+               placeholder="${item.hu}" 
+               oninput="autoResize(this)"
+               onkeypress="if(event.keyCode == 13) { event.preventDefault(); check(${index}); }"
+               style="width: 120px; height: 38px; min-height: 38px; padding: 8px; vertical-align: middle; outline: none; border: 1px solid #ccc; border-radius: 4px; font-family: sans-serif; resize: none; overflow: hidden; box-sizing: border-box;"></textarea>
+               
+        <button onclick="check(${index})" style="width: 60px; height: 38px; cursor: pointer; padding: 8px; border-radius: 4px;">OK</button>
+      </div>
+    `;
+  });
+}
+
+function autoResize(textarea) {
+  textarea.style.height = '38px';
+  textarea.style.height = textarea.scrollHeight + 'px';
+}
+
+// 7. HANGKEZELÉS (Text-to-Speech)
+const voiceSelect = document.getElementById('voice-select');
+function loadVoices() {
+  const voices = window.speechSynthesis.getVoices();
+  voiceSelect.innerHTML = '';
+  const filteredVoices = voices.filter(v => v.lang === 'en-GB' || v.lang === 'en-US');
+  const priorityList = ["Google UK English Female", "Google UK English Male", "Google US English Female", "Google US English Male", "Samantha"];
+  const bestVoiceName = priorityList.find(pName => filteredVoices.some(v => v.name === pName));
+  filteredVoices.forEach(voice => {
+    const option = document.createElement('option');
+    option.value = voice.name;
+    option.textContent = `${voice.name} (${voice.lang === 'en-GB' ? 'Brit' : 'Amerikai'})`;
+    if (voice.name === bestVoiceName) option.selected = true;
+    voiceSelect.appendChild(option);
+  });
+}
+window.speechSynthesis.onvoiceschanged = loadVoices;
+setTimeout(loadVoices, 500);
+
+function getSelectedVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find(v => v.name === voiceSelect.value);
+}
+
+function speak(text, lang, useQueue = false) {
+  if (!useQueue) window.speechSynthesis.cancel();
+  
+  let processedText = text;
+  
+  if (lang.startsWith('en')) {
+    processedText = processedText
+      .replace(/\bsg\b/gi, "something")
+      .replace(/\bsy\b/gi, "somebody");
+  }
+
+  const msg = new SpeechSynthesisUtterance(processedText);
+  msg.lang = lang;
+  
+  if (lang.startsWith('en')) {
+    const selectedVoice = getSelectedVoice();
+    if (selectedVoice) msg.voice = selectedVoice;
+  }
+  window.speechSynthesis.speak(msg);
+}
+
+const speakHu = (txt) => speak(txt, 'hu-HU');
+const speakEn = (txt) => speak(txt, 'en-GB');
+
+// 8. EXTRA FUNKCIÓK (Keverés és Újra)
+function shuffleWords() {
+  for (let i = words.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [words[i], words[j]] = [words[j], words[i]];
+  }
+  
+  renderList();
+  fillEditorFromWords();
+  
+  window.speechSynthesis.cancel();
+  speak("Words shuffled", 'en-GB');
+}
+
+function retryFailed() {
+  if (failedIndices.size === 0) return;
+
+  const retryList = [];
+  failedIndices.forEach(idx => {
+    retryList.push(words[idx]);
+  });
+
+  words = retryList; 
+  failedIndices.clear(); 
+  document.getElementById('retry-btn').style.display = "none"; 
+  
+  renderList();
+  fillEditorFromWords();
+  speak("Let's practice the difficult words", 'en-GB');
+}
+
+// PROGRAM INDÍTÁSA
+initializeLessons();
+</script>
+
+</body>
+</html>
