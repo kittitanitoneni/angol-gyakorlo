@@ -12,10 +12,6 @@
 </head>
 <body>
 
-<button onclick="location.reload()" style="position: absolute; top: 15px; right: 15px; padding: 8px 12px; background: #fff; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-    🔄 Újrakezdés
-</button>
-
 <div id="game-container" style="text-align: center; border: 2px solid #ddd; padding: 20px; border-radius: 10px; font-family: sans-serif; max-width: 550px; margin: auto; background: white;">
   
   <!-- Fejléc és gombok -->
@@ -23,6 +19,10 @@
     <h3 style="margin: 0; font-size: 16px;">Angol szótár gyakorló</h3>
     <div style="display: flex; gap: 3px;">
       <button id="retry-btn" onclick="retryFailed()" style="display: none; cursor: pointer; padding: 5px 10px; background: #fff3e0; border: 1px solid #ff9800; border-radius: 5px; font-size: 12px;">🔁 Csak a hibásak</button>
+      
+      <!-- IDE KERÜLT AZ ÚJRAKEZDÉS GOMB -->
+      <button onclick="location.reload()" style="cursor: pointer; padding: 5px 10px; background: #e8f5e9; border: 1px solid #4caf50; border-radius: 5px; font-size: 12px;">🔄 Újrakezdés</button>
+      
       <button onclick="shuffleWords()" style="cursor: pointer; padding: 5px 10px; background: #e3f2fd; border: 1px solid #2196f3; border-radius: 5px; font-size: 12px;">🔀 Keverés</button>
       <button onclick="toggleEditor()" style="cursor: pointer; padding: 5px 10px; background: #eee; border: 1px solid #ccc; border-radius: 5px; font-size: 12px;">⚙️</button>
     </div>
