@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="quiz">
+	
+    <title>Angol Szóverseny - Okos Hangfelügyelet</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #f4f7f6; }
+        #quiz-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 550px; text-align: center; }
+        #setup-area { background: #eef2f3; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; border: 1px solid #d1d8dd; }
+        .setup-row { margin: 10px 0; display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+        
+        /* Témaválasztó legördülő menü stílusa */
+        #vocab-selector { font-weight: bold; padding: 8px; border-radius: 6px; border: 1px solid #2196f3; background: #e3f2fd; color: #0d47a1; cursor: pointer; width: 100%; max-width: 300px; text-align: center; }
+        
+        #name-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 15px; }
+        .name-btn { padding: 10px; border: 1px solid #2196f3; background: #e3f2fd; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .name-btn:hover { background: #2196f3; color: white; }
+        #game-content { display: none; }
+        #timer-box { font-size: 18px; color: #e67e22; font-weight: bold; margin-bottom: 15px; padding: 10px; background: #fff3e0; border-radius: 8px; }
+        #question-box { font-size: 26px; font-weight: bold; margin-bottom: 20px; color: #2c3e50; min-height: 45px; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .option-btn { padding: 12px; font-size: 15px; cursor: pointer; border: 1px solid #ddd; border-radius: 8px; background-color: #fff; min-height: 55px; display: flex; align-items: center; justify-content: center; }
+        .correct { background-color: #d4edda !important; border-color: #28a745 !important; color: #155724; }
+        .wrong { background-color: #ffcccc !important; border-color: #e74c3c !important; color: #c0392b; }
+        .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fffde7; font-size: 14px; }
+        .leaderboard-table th, .leaderboard-table td { padding: 8px; border: 1px solid #fbc02d; text-align: center; }
+        .leaderboard-table th { background: #fbc02d; color: white; }
+        .gold { background: #fff9c4; font-weight: bold; }
+        .current-user-row { background: #e3f2fd; border: 2px solid #2196f3 !important; font-weight: bold; }
+        input[type="number"], select { padding: 6px; border-radius: 4px; border: 1px solid #ccc; }
+        .new-game-btn { margin-top: 25px; padding: 15px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 18px; }
+        .retry-failed-btn { margin-top: 10px; padding: 10px; background: #ff9800; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <div id="start-screen">
+        <h3>Verseny Beállítások</h3>
+        <div id="setup-area">
+            <!-- ÚJ: Témaválasztó legördülő lista -->
+            <div class="setup-row">
+                <select id="vocab-selector" onchange="changeVocab()"></select>
+            </div>
+            
+            <div class="setup-row">
+                <label>Irány:</label>
+                <select id="quiz-direction" onchange="saveSetup(); resetLeaderboardOnInp();">
+                    <option value="hu-en">Magyar ➔ Angol</option>
+                    <option value="en-hu">Angol ➔ Magyar</option>
+                </select>
+            </div>
+            <div class="setup-row">
+                <input type="number" id="slice-start" value="1" min="1" onchange="saveSetup(); resetLeaderboardOnInp();">
+                <span>. szótól</span>
+                <input type="number" id="slice-count" value="0" min="1" onchange="saveSetup(); resetLeaderboardOnInp();">
+                <span>db szó</span>
+            </div>
+            <div style="font-size: 13px; margin-top: 5px;">A témában összesen <span id="total-display">...</span> szó található.</div>
+        </div>
+        
+        <h4 id="player-selection-title">Ki következik?</h4>
+        <div id="name-selector">Betöltés...</div>
+        
+        <div id="start-leaderboard-section" style="display:none; margin-top: 25px; border-top: 2px solid #eee; padding-top: 15px;">
+            <h4>🏆 Aktuális Ranglista</h4>
+            <div class="leaderboard-target"></div>
+        </div>
+    </div>
+
+    <div id="game-content">
+        <div id="timer-box">
+            <span id="current-player-name" style="color: #2196f3;"></span>
+            <span id="mode-indicator" style="font-size: 12px; color: #999; margin-left: 10px;"></span><br>
+            Idő: <span id="seconds">0</span> mp
+        </div>
+        <div id="question-area">
+            <div id="question-box"></div>
+            <div class="options-grid" id="options-container"></div>
+            <div id="score-info" style="margin-top:10px; color: #7f8c8d;"></div>
+        </div>
+        <div id="final-results-area" style="display:none;">
+            <div id="final-title" style="font-size: 26px; font-weight: bold; color: #2c3e50;">Kész! 🏁</div>
+            <div id="final-stats-summary" style="margin: 15px 0; font-size: 18px; color: #27ae60;"></div>
+            <div id="leaderboard-in-game" style="margin-top: 15px; padding: 15px; background: #fffde7; border-radius: 8px; border: 1px solid #fbc02d; display: none;">
+                <h4 style="margin: 0 0 10px 0;">🏆 Ranglista</h4>
+                <div class="leaderboard-target"></div>
+            </div>
+            <button id="next-player-btn" class="new-game-btn" onclick="location.reload()">Következő versenyző</button>
+            <button id="retry-failed-btn" class="retry-failed-btn" style="display:none;" onclick="retryFailedWords()">Csak a hibás szavak javítása (Tanulás)</button>
+        </div>
+        <div id="voice-ctrl-area" style="margin-top:20px; opacity: 0.5;">
+            <select id="voice-select" style="width:100%; font-size: 11px;"></select>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- ITT ADD MEG A JSON FÁJLOK LINKJEIT ---
+const jsonUrls = [
+    "https://raw.githubusercontent.com/kittitanitoneni/angol-gyakorlo/refs/heads/main/Angol_Fecskefiokak_E_4osztaly_001.json",
+    "https://raw.githubusercontent.com/kittitanitoneni/angol-gyakorlo/refs/heads/main/Angol_Fecskefiokak_J_4osztaly_001.json",
+    "https://raw.githubusercontent.com/kittitanitoneni/angol-gyakorlo/refs/heads/main/Angol_Korabbi4osztaly_001.json"
+];
+// ------------------------------------------
+
+let loadedVocabs = []; // Az összes letöltött szótár és címük tárolása
+let allWordsRaw = []; 
+let wordsToPractice = []; 
+let currentPlayer = "";
+let currentIndex = 0;
+let secondsElapsed = 0;
+let timerInterval = null;
+let isTransitioning = false;
+let errorCount = 0;
+let sessionResults = [];
+let isRetryMode = false;
+let speechWatchdog = null;
+let isSinglePlayerMode = false; 
+
+// Beállítások mentése (most már a kiválasztott témát is menti)
+function saveSetup() {
+    const setup = { 
+        dir: document.getElementById('quiz-direction').value, 
+        start: document.getElementById('slice-start').value, 
+        count: document.getElementById('slice-count').value,
+        vocabIdx: document.getElementById('vocab-selector').value 
+    };
+    localStorage.setItem('quiz_setup', JSON.stringify(setup));
+}
+
+function loadVoices() {
+    const s = document.getElementById('voice-select');
+    let voices = window.speechSynthesis.getVoices();
+    if (voices.length === 0) return;
+    s.innerHTML = "";
+    const englishVoices = voices.filter(v => v.lang.includes('en'));
+    englishVoices.forEach(v => {
+        const o = document.createElement('option');
+        o.value = v.name; o.innerText = `${v.name} (${v.lang})`; s.appendChild(o);
+    });
+    const priorityList = ["Google US English Female", "Google US English Male", "Samantha"];
+    let foundVoice = null;
+    for (const pName of priorityList) {
+        foundVoice = englishVoices.find(v => v.name === pName);
+        if (foundVoice) break;
+    }
+    if (!foundVoice) foundVoice = englishVoices.find(v => v.name.includes('Siri'));
+    if (foundVoice) s.value = foundVoice.name;
+}
+
+if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = loadVoices;
+
+const voiceRetryInterval = setInterval(() => {
+    if (document.getElementById('voice-select').options.length === 0) loadVoices();
+    else clearInterval(voiceRetryInterval);
+}, 500);
+
+function speak(text, lang, callback) {
+    window.speechSynthesis.cancel();
+    if (speechWatchdog) clearTimeout(speechWatchdog);
+
+    const msg = new SpeechSynthesisUtterance(text.replace(/\bsg\b/gi, "something").replace(/\bsy\b/gi, "somebody"));
+    msg.lang = lang;
+    if (lang.startsWith('en')) {
+        const v = window.speechSynthesis.getVoices().find(v => v.name === document.getElementById('voice-select').value);
+        if (v) msg.voice = v;
+    }
+
+    let hasEnded = false;
+    const safeEnd = () => {
+        if (!hasEnded) {
+            hasEnded = true;
+            if (speechWatchdog) clearTimeout(speechWatchdog);
+            if (callback) callback();
+        }
+    };
+
+    msg.onend = safeEnd;
+    msg.onerror = safeEnd;
+
+    const dynamicWait = 1500 + (text.length * 100);
+    speechWatchdog = setTimeout(() => {
+        if (!hasEnded) { window.speechSynthesis.cancel(); safeEnd(); }
+    }, dynamicWait);
+
+    window.speechSynthesis.speak(msg);
+}
+
+async function init() {
+    try {
+        // 1. Az összes JSON párhuzamos letöltése
+        const fetches = jsonUrls.map(url => fetch(url + '?t=' + Date.now()).then(r => r.json()));
+        const results = await Promise.all(fetches);
+        
+        const names = await fetch('https://raw.githubusercontent.com/kittitanitoneni/angol-gyakorlo/refs/heads/main/Names_00.json').then(r => r.json());
+        
+        // 2. Szótárak feldolgozása (Cím keresése)
+        loadedVocabs = results.map((data, index) => {
+            let title = `Szójegyzék ${index + 1}`;
+            let words = data;
+
+            // Ha a JSON tömb, és az első eleme a cím
+            if (Array.isArray(data) && data.length > 0 && data[0].title) {
+                title = data[0].title;
+                words = data.slice(1); // A szavak listája a 2. elemtől indul
+            }
+            // Szabványos objektum esetén (későbbi kompatibilitás)
+            else if (!Array.isArray(data) && data.title && data.words) {
+                title = data.title;
+                words = data.words;
+            }
+
+            return { title, words };
+        });
+
+        // 3. Legördülő lista feltöltése
+        const selector = document.getElementById('vocab-selector');
+        loadedVocabs.forEach((voc, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.innerText = voc.title;
+            selector.appendChild(opt);
+        });
+
+        // 4. Mentett beállítások betöltése
+        const saved = JSON.parse(localStorage.getItem('quiz_setup'));
+        if (saved && saved.vocabIdx !== undefined && saved.vocabIdx < loadedVocabs.length) {
+            selector.value = saved.vocabIdx;
+            document.getElementById('quiz-direction').value = saved.dir;
+            selectVocab(saved.vocabIdx, false); // false = ne állítsa be az utolsó 15 szót automatikusan
+            document.getElementById('slice-start').value = saved.start;
+            document.getElementById('slice-count').value = saved.count;
+        } else {
+            selectVocab(0, true); // true = alapértelmezetten állítsa be az utolsó 15 szót
+        }
+        
+        // 5. Nevek és Egyjátékos mód beállítása
+        const nameContainer = document.getElementById('name-selector');
+        nameContainer.innerHTML = "";
+        
+        if (names.length === 1) {
+            isSinglePlayerMode = true;
+            document.getElementById('player-selection-title').style.display = "none";
+            const btn = document.createElement('button');
+            btn.className = 'new-game-btn'; 
+            btn.style.marginTop = "0";
+            btn.innerText = "Játék indítása";
+            btn.onclick = () => startCompetition(names[0].name);
+            nameContainer.appendChild(btn);
+            document.getElementById('next-player-btn').innerText = "Új kör indítása";
+        } else {
+            isSinglePlayerMode = false;
+            names.forEach(obj => {
+                const btn = document.createElement('button');
+                btn.className = 'name-btn'; btn.innerText = obj.name;
+                btn.onclick = () => startCompetition(obj.name);
+                nameContainer.appendChild(btn);
+            });
+            updateLeaderboardViews();
+        }
+    } catch (e) { console.error("Hiba a betöltéskor:", e); }
+}
+
+// Új téma kiválasztása a legördülőből
+function changeVocab() {
+    const idx = parseInt(document.getElementById('vocab-selector').value);
+    selectVocab(idx, true); // Új témánál mindig az utolsó 15-öt ajánlja fel
+    saveSetup();
+    resetLeaderboardOnInp();
+}
+
+// Belső függvény a téma adatainak beállítására
+function selectVocab(idx, autoCalculateSlice) {
+    allWordsRaw = loadedVocabs[idx].words;
+    document.getElementById('total-display').innerText = allWordsRaw.length;
+
+    if (autoCalculateSlice) {
+        const count = 15;
+        const start = Math.max(1, allWordsRaw.length - count + 1);
+        document.getElementById('slice-start').value = start;
+        document.getElementById('slice-count').value = count;
+    }
+}
+
+function resetLeaderboardOnInp() { 
+    if (isSinglePlayerMode) return;
+    localStorage.removeItem('eng_quiz_results'); 
+    updateLeaderboardViews(); 
+}
+
+function updateLeaderboardViews() {
+    if (isSinglePlayerMode) return; 
+
+    const data = JSON.parse(localStorage.getItem('eng_quiz_results') || "[]");
+    const containers = document.querySelectorAll('.leaderboard-target');
+    if (data.length === 0) {
+        document.getElementById('start-leaderboard-section').style.display = "none";
+        containers.forEach(c => c.innerHTML = "Még nincs versenyeredmény."); return;
+    }
+    document.getElementById('start-leaderboard-section').style.display = "block";
+    data.sort((a, b) => a.time - b.time); 
+    let html = `<table class="leaderboard-table"><tr><th>#</th><th>Név</th><th>Idő</th><th>Hiba</th></tr>`;
+    data.forEach((res, idx) => {
+        const isCurrent = (res.name === currentPlayer && res.time === secondsElapsed && !isRetryMode) ? 'class="current-user-row"' : (idx === 0 ? 'class="gold"' : '');
+        html += `<tr ${isCurrent}><td>${idx+1}.</td><td>${res.name}</td><td>${res.time}s</td><td>${res.errors}</td></tr>`;
+    });
+    html += `</table>`;
+    containers.forEach(c => c.innerHTML = html);
+}
+
+function startCompetition(name) {
+    const startIdx = parseInt(document.getElementById('slice-start').value) - 1;
+    const count = parseInt(document.getElementById('slice-count').value);
+    wordsToPractice = allWordsRaw.slice(startIdx, startIdx + count);
+    isRetryMode = false;
+    document.getElementById('mode-indicator').innerText = "";
+    
+    currentPlayer = name;
+    document.getElementById('current-player-name').innerText = isSinglePlayerMode ? "Gyakorlás" : name;
+    
+    document.getElementById('start-screen').style.display = "none";
+    document.getElementById('game-content').style.display = "block";
+    shuffle(wordsToPractice); 
+    currentIndex = 0; errorCount = 0; sessionResults = [];
+    startTimer(); showQuestion();
+}
+
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    secondsElapsed = 0;
+    timerInterval = setInterval(() => { secondsElapsed++; document.getElementById('seconds').innerText = secondsElapsed; }, 1000);
+}
+
+function showQuestion() {
+    if (currentIndex >= wordsToPractice.length) { clearInterval(timerInterval); finishGame(); return; }
+    isTransitioning = false;
+    const container = document.getElementById('options-container');
+    container.innerHTML = "";
+    const word = wordsToPractice[currentIndex];
+    const dir = document.getElementById('quiz-direction').value;
+    const qKey = dir === 'hu-en' ? 'hu' : 'en';
+    const aKey = dir === 'hu-en' ? 'en' : 'hu';
+    sessionResults[currentIndex] = { hu: word.hu, en: word.en, hasError: false, wordObj: word };
+    document.getElementById('question-box').innerText = word[qKey];
+    document.getElementById('score-info').innerText = `${currentIndex + 1} / ${wordsToPractice.length}`;
+    speak(word[qKey], dir === 'hu-en' ? 'hu-HU' : 'en-GB');
+
+    let opts = [word[aKey]];
+    let pool = allWordsRaw.filter(w => w[aKey] !== word[aKey]);
+    shuffle(pool);
+    for(let i=0; i<7; i++) if(pool[i]) opts.push(pool[i][aKey]);
+    shuffle(opts);
+
+    opts.forEach(text => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn'; btn.innerText = text;
+        btn.onclick = () => {
+            if (isTransitioning) return;
+            if (text === word[aKey]) {
+                isTransitioning = true; btn.classList.add('correct');
+                speak(text, dir === 'hu-en' ? 'en-GB' : 'hu-HU', () => { setTimeout(() => { currentIndex++; showQuestion(); }, 300); });
+            } else if (!btn.classList.contains('wrong')) {
+                btn.classList.add('wrong'); sessionResults[currentIndex].hasError = true;
+                errorCount++; secondsElapsed += 7; document.getElementById('seconds').innerText = secondsElapsed;
+            }
+        };
+        container.appendChild(btn);
+    });
+}
+
+function finishGame() {
+    if (!isRetryMode && !isSinglePlayerMode) {
+        const data = JSON.parse(localStorage.getItem('eng_quiz_results') || "[]");
+        const existingIndex = data.findIndex(res => res.name === currentPlayer);
+
+        if (existingIndex !== -1) {
+            if (secondsElapsed < data[existingIndex].time) {
+                data[existingIndex] = { name: currentPlayer, time: secondsElapsed, errors: errorCount };
+            }
+        } else {
+            data.push({ name: currentPlayer, time: secondsElapsed, errors: errorCount });
+        }
+
+        localStorage.setItem('eng_quiz_results', JSON.stringify(data));
+        document.getElementById('leaderboard-in-game').style.display = "block";
+    } else {
+        document.getElementById('leaderboard-in-game').style.display = "none";
+    }
+    
+    document.getElementById('question-area').style.display = "none";
+    document.getElementById('final-results-area').style.display = "block";
+    
+    const displayName = isSinglePlayerMode ? "Eredményed" : currentPlayer;
+    document.getElementById('final-stats-summary').innerText = `${displayName}: ${secondsElapsed} mp (${errorCount} hiba)`;
+    
+    if (!isSinglePlayerMode) {
+        updateLeaderboardViews();
+    }
+    
+    document.getElementById('retry-failed-btn').style.display = sessionResults.some(r => r.hasError) ? "block" : "none";
+}
+
+function retryFailedWords() {
+    wordsToPractice = sessionResults.filter(r => r.hasError).map(r => r.wordObj);
+    isRetryMode = true;
+    document.getElementById('mode-indicator').innerText = "(Javítás)";
+    document.getElementById('final-results-area').style.display = "none";
+    document.getElementById('question-area').style.display = "block";
+    shuffle(wordsToPractice);
+    currentIndex = 0; errorCount = 0; sessionResults = [];
+    startTimer(); showQuestion();
+}
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } }
+
+init();
+</script>
+</body>
+</html>
