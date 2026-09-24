@@ -1,0 +1,17 @@
+[
+  {"word": "gólya", "a": "j-ly"},
+  {"word": "hömpölyög", "comment": "áramlik", "a": "j-ly"},
+  {"word": "bújik", "a": "j-ly", "b": "u-ú"},
+  {"word": "folyékony", "a": "j-ly"},
+  {"word": "éjszaka", "a": "j-ly"},
+  {"word": "ijedős", "a": "j-ly"},
+  {"word": "hajlékony", "a": "j-ly"},
+  {"word": "bolygó", "comment": "égitest", "a": "j-ly", "b": "o-ó"},
+  {"word": "homályos", "a": "j-ly"},
+  {"word": "mosolyog", "a": "j-ly"},
+  {"word": "seregély", "comment": "madár", "a": "j-ly"},
+  {"word": "sóhajtozik", "a": "j-ly", "b": "o-ó"},
+  {"word": "olajos", "a": "j-ly"},
+  {"word": "veszélyes", "a": "j-ly"},
+  {"word": "ünnepély", "a": "j-ly", "b": "n-nn"}
+]
