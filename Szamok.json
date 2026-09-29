@@ -1,0 +1,13 @@
+[
+  { "title": "Számok" },
+  { "hu": "tíz", "en": "ten" },
+  { "hu": "tizenegy", "en": "eleven" },
+  { "hu": "tizenkettő", "en": "twelve" },
+  { "hu": "tizenhárom", "en": "thirteen" },
+  { "hu": "tizennégy", "en": "fourteen" },
+  { "hu": "tizenöt", "en": "fifteen" },
+  { "hu": "tizenhat", "en": "sixteen" },
+  { "hu": "tizenhét", "en": "seventeen" },
+  { "hu": "tizennyolc", "en": "eighteen" },
+  { "hu": "tizenkilenc", "en": "nineteen" }
+]
