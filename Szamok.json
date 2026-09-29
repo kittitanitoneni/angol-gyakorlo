@@ -9,5 +9,15 @@
   { "hu": "tizenhat", "en": "sixteen" },
   { "hu": "tizenhét", "en": "seventeen" },
   { "hu": "tizennyolc", "en": "eighteen" },
-  { "hu": "tizenkilenc", "en": "nineteen" }
+  { "hu": "tizenkilenc", "en": "nineteen" },
+  { "hu": "húsz", "en": "twenty" },
+  { "hu": "huszonegy", "en": "twenty-one" },
+  { "hu": "huszonkettő", "en": "twenty-two" },
+  { "hu": "huszonhárom", "en": "twenty-three" },
+  { "hu": "huszonnégy", "en": "twenty-four" },
+  { "hu": "huszonöt", "en": "twenty-five" },
+  { "hu": "huszonhat", "en": "twenty-six" },
+  { "hu": "huszonhét", "en": "twenty-seven" },
+  { "hu": "huszonnyolc", "en": "twenty-eight" },
+  { "hu": "huszonkilenc", "en": "twenty-nine" }
 ]
