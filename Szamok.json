@@ -19,5 +19,13 @@
   { "hu": "huszonhat", "en": "twenty-six" },
   { "hu": "huszonhét", "en": "twenty-seven" },
   { "hu": "huszonnyolc", "en": "twenty-eight" },
-  { "hu": "huszonkilenc", "en": "twenty-nine" }
+  { "hu": "huszonkilenc", "en": "twenty-nine" },
+  { "hu": "harminc", "en": "thirty" },
+  { "hu": "negyven", "en": "forty" },
+  { "hu": "ötven", "en": "fifty" },
+  { "hu": "hatvan", "en": "sixty" },
+  { "hu": "hetven", "en": "seventy" },
+  { "hu": "nyolcvan", "en": "eighty" },
+  { "hu": "kilencven", "en": "ninety" },
+  { "hu": "száz", "en": "one hundred" }
 ]
