@@ -1,0 +1,22 @@
+[
+{ "title": "CS01" },
+{ "hu": "ellenőrzési napló", "en": "audit trail" },
+{ "hu": "álfuvarozó", "en": "carrier impersonation" },
+{ "hu": "fuvarlevél", "en": "consignment note" },
+{ "hu": "felügyeletátruházás", "en": "custody change" },
+{ "hu": "mélyhamisítás", "en": "deepfake deception" },
+{ "hu": "kettős fuvarközvetítés", "en": "double brokering" },
+{ "hu": "várakozási idő", "en": "dwell time" },
+{ "hu": "fuvarközvetítés", "en": "freight matching" },
+{ "hu": "veszélyes anyagok", "en": "HazMat" },
+{ "hu": "elkövetési mód", "en": "modus operandi" },
+{ "hu": "rendszerösszehangolás", "en": "orchestration" },
+{ "hu": "dézsmálás", "en": "pilferage" },
+{ "hu": "hűtőkocsi", "en": "reefer" },
+{ "hu": "tolatás", "en": "shunting" },
+{ "hu": "stratégiai csalás", "en": "strategic fraud" },
+{ "hu": "manipulálhatatlan", "en": "tamper-proof" },
+{ "hu": "kulcsrakész", "en": "turnkey" },
+{ "hu": "értékállomány", "en": "value pool" },
+{ "hu": "hídmérleg", "en": "weighbridge" }
+]
