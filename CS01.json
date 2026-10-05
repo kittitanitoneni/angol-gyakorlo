@@ -18,5 +18,11 @@
 { "hu": "manipulálhatatlan", "en": "tamper-proof" },
 { "hu": "kulcsrakész", "en": "turnkey" },
 { "hu": "értékállomány", "en": "value pool" },
-{ "hu": "hídmérleg", "en": "weighbridge" }
+{ "hu": "hídmérleg", "en": "weighbridge" },
+  { "hu": "bevétel", "en": "revenue" },
+  { "hu": "sorompó", "en": "barrier" },
+  { "hu": "előfizetés", "en": "subscription" },
+  { "hu": "felmérés", "en": "survey" },
+  { "hu": "létesítmény", "en": "facility" },
+  { "hu": "jövedelmezőség", "en": "profitability" }
 ]
