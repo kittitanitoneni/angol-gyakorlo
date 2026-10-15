@@ -41,5 +41,10 @@
   { "hu": "ceruza", "en": "pencil"},
   { "hu": "toll", "en": "pen"},
   { "hu": "jegyzetfüzet", "en": "notebook"},
-  { "hu": "táska", "en": "bag"}
+  { "hu": "táska", "en": "bag"},
+  { "hu": "laptop", "en": "laptop"},
+  { "hu": "hajó", "en": "boat"},
+  { "hu": "iskola", "en": "school"},
+  { "hu": "tábla", "en": "board"},
+  { "hu": "könyvespolc", "en": "bookcase"}
 ]
