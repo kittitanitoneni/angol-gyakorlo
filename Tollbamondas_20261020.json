@@ -18,7 +18,7 @@
   {"word": "szívesen", "a": "i-í"},
   {"word": "szökkenéssel", "a": "k-kk", "b": "s-ss"},
   {"word": "eltűnik", "a": "ü-ű"},
-  {"word": "sűrűben", "a": "ü-ű"},
+  {"word": "sűrűben", "comment": "sűrű erdőben", "a": "ü-ű"},
   {"word": "gyík", "a": "i-í"},
   {"word": "gyönyörű", "a": "ö-ő", "b": "ü-ű"},
   {"word": "láttál", "a": "t-tt"},
