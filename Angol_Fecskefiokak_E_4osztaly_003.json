@@ -46,5 +46,11 @@
   { "hu": "hajó", "en": "boat"},
   { "hu": "iskola", "en": "school"},
   { "hu": "tábla", "en": "board"},
-  { "hu": "könyvespolc", "en": "bookcase"}
+  { "hu": "könyvespolc", "en": "bookcase"},
+  { "hu": "furcsa, különös", "en": "strange"},
+  { "hu": "osztályterem", "en": "classroom"},
+  { "hu": "tolltartó", "en": "pencil case"},
+  { "hu": "fehér tábla", "en": "whiteboard"},
+  { "hu": "vonalzó", "en": "ruller"},
+  { "hu": "esernyő", "en": "umbrella"}
 ]
