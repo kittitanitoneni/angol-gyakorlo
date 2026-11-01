@@ -44,7 +44,6 @@
   { "hu": "táska", "en": "bag"},
   { "hu": "laptop", "en": "laptop"},
   { "hu": "hajó", "en": "boat"},
-  { "hu": "iskola", "en": "school"},
   { "hu": "tábla", "en": "board"},
   { "hu": "könyvespolc", "en": "bookcase"},
   { "hu": "furcsa, különös", "en": "strange"},
@@ -52,5 +51,17 @@
   { "hu": "tolltartó", "en": "pencil case"},
   { "hu": "fehér tábla", "en": "whiteboard"},
   { "hu": "vonalzó", "en": "ruler"},
-  { "hu": "esernyő", "en": "umbrella"}
+  { "hu": "esernyő", "en": "umbrella"},
+  { "hu": "Ez egy alma.", "en": "This is an apple."},
+  { "hu": "Az egy alma.", "en": "That is an apple."},
+  { "hu": "Mi ez?", "en": "What is this? What's this?"},
+  { "hu": "Ez egy virág.", "en": "This is a flower."},
+  { "hu": "Mi az?", "en": "What is that? What's that?"},
+  { "hu": "Az egy szék.", "en": "That is a chair."},
+  { "hu": "Ez egy laptop.", "en": "This is a laptop."},
+  { "hu": "Ez egy könyv.", "en": "This is a book."},
+  { "hu": "Ezek almák.", "en": "These are apples."},
+  { "hu": "Azok almák.", "en": "Those are apples."},
+  { "hu": "Ezek könyvek.", "en": "These are books."},
+  { "hu": "Azok laptopok.", "en": "Those are laptops."}
 ]
