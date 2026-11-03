@@ -42,7 +42,7 @@
   {"word": "fűben", "a": "ü-ű"},
   {"word": "később", "a": "s-ss", "b": "ö-ő", "c": "b-bb"},
   {"word": "odafenn", "a": "n-nn"},
-  {"word": "falu", "a": "u-ú"},
+  {"word": "falu", "comment": "kistelepülés", "a": "u-ú"},
   {"word": "fölött", "a": "ö-ő", "b": "l-ll", "c": "t-tt"},
   {"word": "aztán", "a": "z-sz"},
   {"word": "elszálltak", "a": "l-ll"},
