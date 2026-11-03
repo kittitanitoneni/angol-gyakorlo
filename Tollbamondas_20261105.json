@@ -103,7 +103,7 @@
   {"word": "hírű", "a": "i-í", "b": "ü-ű"},
   {"word": "törökverő", "a": "ö-ő"},
   {"word": "lakóhely", "a": "j-ly"},
-  {"word": "nappal", "a": "p"},
+  {"word": "nappal", "a": "p-pp"},
   {"word": "batyujával", "a": "u-ú"},
   {"word": "Buda", "a": "B-b"},
   {"word": "búcsúzott", "a": "u-ú", "b": "t-tt"},
