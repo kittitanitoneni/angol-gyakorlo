@@ -1,9 +1,9 @@
 [
   { "title": "Magyarország részei" },
-  { "hu1": "", "hu2": "Alföld", "pic1": "Magyarország_Alföld.png", "pic2": "Magyarország_Alföld_f.png"},
-  { "hu1": "", "hu2": "Kisalföld", "pic1": "Magyarország_Kisalföld.png", "pic2": "Magyarország_Kisalföld_f.png"},
-  { "hu1": "", "hu2": "Alpokalja", "pic1": "Magyarország_Alpokalja.png", "pic2": "Magyarország_Alpokalja_f.png"},
-  { "hu1": "", "hu2": "Dunántúli-dombvidék", "pic1": "Magyarország_Dunántúli-dombvidék.png", "pic2": "Magyarország_Dunántúli-dombvidék_f.png"},
-  { "hu1": "", "hu2": "Dunántúli-középhegység", "pic1": "Magyarország_Dunántúli-középhegység.png", "pic2": "Magyarország_Dunántúli-középhegység_f.png"},
-  { "hu1": "", "hu2": "Északi-középhegység", "pic1": "Magyarország_Északi-középhegység.png", "pic2": "Magyarország_Északi-középhegység_f.png"}
+  { "hu1": "", "hu2": "Alföld", "pic1": "Magyarorszag_Alfold.png", "pic2": "Magyarorszag_Alfold_f.png"},
+  { "hu1": "", "hu2": "Kisalföld", "pic1": "Magyarorszag_Kisalfold.png", "pic2": "Magyarorszag_Kisalfold_f.png"},
+  { "hu1": "", "hu2": "Alpokalja", "pic1": "Magyarorszag_Alpokalja.png", "pic2": "Magyarorszag_Alpokalja_f.png"},
+  { "hu1": "", "hu2": "Dunántúli-dombvidék", "pic1": "Magyarorszag_Dunantuli-dombvidek.png", "pic2": "Magyarorszag_Dunantuli-dombvidek_f.png"},
+  { "hu1": "", "hu2": "Dunántúli-középhegység", "pic1": "Magyarorszag_Dunantuli-kozephegyseg.png", "pic2": "Magyarorszag_Dunantuli-kozephegyseg_f.png"},
+  { "hu1": "", "hu2": "Északi-középhegység", "pic1": "Magyarorszag_Eszaki-kozephegyseg.png", "pic2": "Magyarorszag_Eszaki-kozephegyseg_f.png"}
 ]
