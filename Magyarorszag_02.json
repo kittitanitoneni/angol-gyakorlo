@@ -1,0 +1,9 @@
+[
+  { "title": "Magyarország részei 02" },
+  { "hu1": "", "hu2": "Alföld", "pic1": "Magyarorszag_Alfold.png"},
+  { "hu1": "", "hu2": "Kisalföld", "pic1": "Magyarorszag_Kisalfold.png"},
+  { "hu1": "", "hu2": "Alpokalja", "pic1": "Magyarorszag_Alpokalja.png"},
+  { "hu1": "", "hu2": "Dunántúli-dombvidék", "pic1": "Magyarorszag_Dunantuli-dombvidek.png"},
+  { "hu1": "", "hu2": "Dunántúli-középhegység", "pic1": "Magyarorszag_Dunantuli-kozephegyseg.png"},
+  { "hu1": "", "hu2": "Északi-középhegység", "pic1": "Magyarorszag_Eszaki-kozephegyseg.png"}
+]
